@@ -45,5 +45,5 @@ responses = np.array(responses, np.float32)
 responses = responses.reshape((responses.size, 1))
 print "training complete"
 
-np.savetxt('generalsamples.data', samples)
-np.savetxt('generalresponses.data', responses)
+np.savetxt('trainsamples.data', samples)
+np.savetxt('trainresponses.data', responses)

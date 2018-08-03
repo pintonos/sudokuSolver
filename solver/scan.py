@@ -1,9 +1,11 @@
+import sys
+
 import cv2
 import numpy as np
 
 # training part
-samples = np.loadtxt('generalsamples.data', np.float32)
-responses = np.loadtxt('generalresponses.data', np.float32)
+samples = np.loadtxt('trainsamples.data', np.float32)
+responses = np.loadtxt('trainresponses.data', np.float32)
 responses = responses.reshape((responses.size, 1))
 
 model = cv2.ml.KNearest_create()
@@ -11,20 +13,21 @@ model.train(samples, cv2.ml.ROW_SAMPLE, responses)
 
 # testing part
 
-im = cv2.imread('testsudoku.png')
+if len(sys.argv) < 2:
+    print "usage: scan.py imageOfSudoku.png"
+    exit(-1)
+
+im = cv2.imread(sys.argv[1])
 out = np.zeros(im.shape, np.uint8)
 gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
 
 _, contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
-field = []
 row = []
-maxi = 0
+field = []
 for cnt in contours:
     if 1000 > cv2.contourArea(cnt) > 40:
-        if cv2.contourArea(cnt) > maxi:
-            maxi = cv2.contourArea(cnt)
         [x, y, w, h] = cv2.boundingRect(cnt)
         if h > 28:
             cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -46,13 +49,10 @@ for cnt in contours:
 # reverse order
 field = field[::-1]
 
-print maxi
-
-with open("file.dat", "w+") as f:
+with open(sys.argv[1] + '.txt', "w+") as f:
     for i in range(0, len(field)):
         for j in range(0, len(field[0])):
             f.write(str(field[i][j][0]) + ' ')
-
         f.write("\n")
 
 cv2.imshow('out', out)
