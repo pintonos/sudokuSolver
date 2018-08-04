@@ -14,7 +14,7 @@ model.train(samples, cv2.ml.ROW_SAMPLE, responses)
 # testing part
 
 if len(sys.argv) < 2:
-    print "usage: scan.py imageOfSudoku.png"
+    print "usage: python scan.py imageOfSudoku.png"
     exit(-1)
 
 im = cv2.imread(sys.argv[1])
@@ -27,7 +27,7 @@ _, contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE
 row = []
 field = []
 for cnt in contours:
-    if 1000 > cv2.contourArea(cnt) > 40:
+    if 2500 > cv2.contourArea(cnt) > 50:
         [x, y, w, h] = cv2.boundingRect(cnt)
         if h > 28:
             cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -40,7 +40,7 @@ for cnt in contours:
             row.append([string, x, y])
             cv2.putText(out, string, (x, y + h), 0, 1, (0, 255, 0))
 
-        if len(row) == 25:
+        if len(row) == 9:
             # sort by x coordinate
             row.sort(key=lambda x: int(x[1]))
             field.append(row)

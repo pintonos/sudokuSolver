@@ -53,7 +53,7 @@ def readProblem(fname):
 
 
 if len(sys.argv) < 2:
-    print "usage: sudoku.py <input file>"
+    print "usage: solver.py <input file>"
     exit
 
 A = readProblem(sys.argv[1])
