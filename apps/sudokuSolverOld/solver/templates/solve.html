@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+{# Read the documentation for more information #}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p}}
+    <button type="submit" class="btn btn-lg btn-primary">
+      <span class="fas fa-upload"></span>
+      Upload and Solve
+    </button>
+  </form>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy}}
+    <button type="submit" class="btn btn-lg btn-primary">
+      <span class="fas fa-upload"></span>
+      Upload and Solve
+    </button>
+  </form>
+
+  {% crispy form %}
+
+</br>
+  <p>Uploaded files:</p>
+  <ul>
+    {% for obj in documents %}
+      <li>
+        <small><a href="{{ obj.document.url }}">{{ obj.document.name }}</a></small>
+        <small>(Uploaded at: {{ obj.uploaded_at }})</small>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="{% url 'index' %}">Return to home</a></p>
+{% endblock %}
