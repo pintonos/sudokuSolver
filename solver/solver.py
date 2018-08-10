@@ -1,3 +1,5 @@
+import sys
+
 from z3 import *
 
 
@@ -36,9 +38,9 @@ def solve(A):
     if result == z3.sat:
         model = solver.model()  # get valuation
         for row in vars:
-            print reduce(lambda s, v: s + str(model[v]) + " ", row, "")
+            print(reduce(lambda s, v: s + str(model[v]) + " ", row, ""))
     else:
-        print "no solution found"
+        print("no solution found")
 
 
 def readProblem(fname):
@@ -53,7 +55,7 @@ def readProblem(fname):
 
 
 if len(sys.argv) < 2:
-    print "usage: solver.py <input file>"
+    print("usage: solver.py <input file>")
     exit
 
 A = readProblem(sys.argv[1])

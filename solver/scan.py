@@ -3,7 +3,12 @@ import sys
 import cv2
 import numpy as np
 
+from solver.solver import readProblem, solve
+
+
 # training part
+
+
 samples = np.loadtxt('trainsamples.data', np.float32)
 responses = np.loadtxt('trainresponses.data', np.float32)
 responses = responses.reshape((responses.size, 1))
@@ -14,7 +19,7 @@ model.train(samples, cv2.ml.ROW_SAMPLE, responses)
 # testing part
 
 if len(sys.argv) < 2:
-    print "usage: python scan.py imageOfSudoku.png"
+    print("usage: python scan.py imageOfSudoku.png")
     exit(-1)
 
 im = cv2.imread(sys.argv[1])
@@ -53,13 +58,16 @@ for cnt in contours:
 # reverse order
 field = field[::-1]
 
+# write to file
 with open(sys.argv[1] + '.txt', "w+") as f:
     for i in range(0, len(field)):
         for j in range(0, len(field[0])):
             f.write(str(field[i][j][0]) + ' ')
         f.write("\n")
 
-print 'finished '
+# solve sudoku
+A = readProblem(sys.argv[1] + '.txt')
+solve(A)
 
-cv2.imshow('out', out)
-cv2.waitKey(0)
+# cv2.imshow('out', out)
+# cv2.waitKey(0)
