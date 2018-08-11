@@ -1,21 +1,29 @@
 import sys
+import os.path
 
 import numpy as np
 import cv2
 
-# images should be sized roughly to 430x430
-
 if len(sys.argv) < 2:
-    print("usage: python generateTrainData.py {trainImage1, trainImage2, ...}")
+    print("usage: python generateTrainData.py ./path/to/traindata.txt")
     exit(-1)
+
+# read in training data image paths
+training_files = []
+with open(sys.argv[1]) as f:
+    for line in f.readlines():
+        training_files.append(line)
+
+# remove whitespaces
+training_files = [x.strip() for x in training_files]
 
 responses = []
 samples = np.empty((0, 100))
 
-for i in range(1, len(sys.argv)):
+for train_file in training_files:
     # TODO size to 430x430
-    im = cv2.imread(sys.argv[i])
-    im3 = im.copy()
+
+    im = cv2.imread(train_file)
 
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
