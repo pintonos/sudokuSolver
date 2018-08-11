@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import cv2
 
-# images should be sized roughly to 400x400
+# images should be sized roughly to 430x430
 
 if len(sys.argv) < 2:
     print("usage: python generateTrainData.py {trainImage1, trainImage2, ...}")
@@ -13,6 +13,7 @@ responses = []
 samples = np.empty((0, 100))
 
 for i in range(1, len(sys.argv)):
+    # TODO size to 430x430
     im = cv2.imread(sys.argv[i])
     im3 = im.copy()
 

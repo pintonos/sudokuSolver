@@ -71,6 +71,7 @@ if len(sys.argv) < 2:
     print("usage: python solver.py imageOfSudoku.png")
     exit(-1)
 
+# TODO size to 430x430
 im = cv2.imread(sys.argv[1])
 out = np.zeros(im.shape, np.uint8)
 gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
