@@ -24,13 +24,9 @@ urlpatterns = [
     # The Django Admin
     url(r'^admin/', admin.site.urls),
 
-    # django-fine-uploader default urls
-    url(r'^fine-uploader/', include('django_fine_uploader.urls', namespace='django_fine_uploader')),
+    url(r'^about/', view=views.AboutView.as_view(), name='about'),
 
     # our custom views on myapp app
     url(r'^$', view=views.ExampleView.as_view(), name='home'),
-    url(r'^upload-1/$', view=views.MyAppUploaderView.as_view(), name='uploader-1'),
-    url(r'^upload-2/$', view=views.NotConcurrentUploaderView.as_view(), name='uploader-2'),
     url(r'^upload-3/$', view=views.SimpleCustomUploaderView.as_view(), name='uploader-3'),
-    url(r'^upload-4/$', view=views.CustomFineUploaderView.as_view(), name='uploader-4'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

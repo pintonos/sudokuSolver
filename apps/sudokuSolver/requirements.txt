@@ -1,5 +1,7 @@
-# Your app requirements.
--r ../requirements_test.txt
-
-# Your app in editable mode.
--e ../
+boto==2.49.0
+Django==1.11.15
+numpy==1.15.0
+opencv-python==3.4.2.17
+pytz==2018.5
+z3==0.2.0
+z3-solver==4.8.0.0.post1

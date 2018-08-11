@@ -9,3 +9,5 @@ written in django<2:
 
 django REST framework:
   http://www.django-rest-framework.org/tutorial/quickstart/
+
+  -pip install djangorestframework

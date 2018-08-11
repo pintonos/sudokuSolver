@@ -38,6 +38,7 @@ INSTALLED_APPS = [
 
     'myapp',
     'django_fine_uploader.apps.DjangoFineUploaderConfig',
+    'rest_framework',
 
     # if your app has other dependencies that need to be added to the site
     # they should be added here
