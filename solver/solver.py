@@ -75,14 +75,15 @@ if len(sys.argv) < 2:
 im = cv2.imread(sys.argv[1])
 out = np.zeros(im.shape, np.uint8)
 gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 5, 2)
+_, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+canny = cv2.Canny(im, 127, 255)
 
-_, contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+_, contours, _ = cv2.findContours(canny, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
 row = []
 field = []
 for cnt in contours:
-    if 2500 > cv2.contourArea(cnt) > 150:
+    if 2200 > cv2.contourArea(cnt) > 500:
         [x, y, w, h] = cv2.boundingRect(cnt)
         if h > 35:
             # k-nearest
@@ -108,8 +109,8 @@ for cnt in contours:
 # reverse order
 field = field[::-1]
 
-cv2.imshow("result", out)
-cv2.waitKey(0)
+# cv2.imshow("result", out)
+# cv2.waitKey(0)
 
 # write to file
 with open(sys.argv[1] + '.txt', "w+") as f:

@@ -38,10 +38,10 @@ for train_file in training_files:
 
     cv2.destroyAllWindows()
     for cnt in contours:
-        if 2400 > cv2.contourArea(cnt) > 150:
-            print(cv2.contourArea(cnt))
+        # TODO avoid overlapping contours
+        if 2200 > cv2.contourArea(cnt) > 500:
             [x, y, w, h] = cv2.boundingRect(cnt)
-            if h > 30:
+            if h > 35:
                 cv2.rectangle(im, (x, y), (x + w, y + h), (0, 0, 255), 2)
                 roi = thresh[y:y + h, x:x + w]
                 roismall = cv2.resize(roi, (10, 10))
