@@ -108,6 +108,9 @@ for cnt in contours:
 # reverse order
 field = field[::-1]
 
+cv2.imshow("result", out)
+cv2.waitKey(0)
+
 # write to file
 with open(sys.argv[1] + '.txt', "w+") as f:
     for i in range(0, len(field)):
