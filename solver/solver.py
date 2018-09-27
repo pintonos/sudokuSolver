@@ -74,19 +74,21 @@ if len(sys.argv) < 2:
 # TODO size to 430x430
 im = cv2.imread(sys.argv[1])
 out = np.zeros(im.shape, np.uint8)
-gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-_, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-canny = cv2.Canny(im, 127, 255)
 
-_, contours, _ = cv2.findContours(canny, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+blur = cv2.GaussianBlur(gray, (5, 5), 0)
+thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)
+
+# finding Contours
+_, contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
 row = []
 field = []
 for cnt in contours:
-    if 2200 > cv2.contourArea(cnt) > 500:
         [x, y, w, h] = cv2.boundingRect(cnt)
-        if h > 35:
-            # k-nearest
+        area = w * h
+        # contour is number of empty field
+        if 680 > area > 325 and w > 10 and h > 25:
             roi = thresh[y:y + h, x:x + w]
             roismall = cv2.resize(roi, (10, 10))
             roismall = roismall.reshape((1, 100))
@@ -94,7 +96,6 @@ for cnt in contours:
             _, results, _, _ = model.findNearest(roismall, k=1)
             string = str(int((results[0][0])))
             row.append([string, x, y])
-            # print len(row)
 
             # write to output image
             cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -109,8 +110,8 @@ for cnt in contours:
 # reverse order
 field = field[::-1]
 
-# cv2.imshow("result", out)
-# cv2.waitKey(0)
+cv2.imshow("result", out)
+cv2.waitKey(0)
 
 # write to file
 with open(sys.argv[1] + '.txt', "w+") as f:
