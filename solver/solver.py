@@ -84,8 +84,10 @@ _, contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE
 
 row = []
 field = []
+_, y_old, _, _ = cv2.boundingRect(contours[0])
 for cnt in contours:
         [x, y, w, h] = cv2.boundingRect(cnt)
+
         area = w * h
         # contour is number of empty field
         if 680 > area > 325 and w > 10 and h > 25:
@@ -95,30 +97,48 @@ for cnt in contours:
             roismall = np.float32(roismall)
             _, results, _, _ = model.findNearest(roismall, k=1)
             string = str(int((results[0][0])))
-            row.append([string, x, y])
+            if y + 10 > y_old > y - 10:
+                row.append([string, x, y])
+            else:
+                row.sort(key=lambda x: int(x[1]))
+                if len(row) != 0:
+                    field.append(row)
+                row = [[string, x, y]]
+                y_old = y
 
             # write to output image
             cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(out, string, (x, y + h), 0, 1, (0, 255, 0))
 
-        if len(row) == 9:
-            # sort by x coordinate
-            row.sort(key=lambda x: int(x[1]))
-            field.append(row)
-            row = []
-
-# reverse order
+row.sort(key=lambda x: int(x[1]))
+field.append(row)
 field = field[::-1]
 
-cv2.imshow("result", out)
-cv2.waitKey(0)
+padded_field = []
+
+# compute number of zeros
+for row in field:
+    ext_row = [['0', 0, 0]] + row + [['0', 430, 0]]
+    for i in range(0, len(ext_row) - 1):
+        distance = ext_row[i + 1][1] - ext_row[i][1]
+        if distance > 60:
+            padded_field.append([distance // 49, '0'])
+        if i != len(ext_row) - 2:
+            padded_field.append([1, ext_row[i + 1][0]])
+
 
 # write to file
-with open(sys.argv[1] + '.txt', "w+") as f:
-    for i in range(0, len(field)):
-        for j in range(0, len(field[0])):
-            f.write(str(field[i][j][0]) + ' ')
-        f.write("\n")
+file = sys.argv[1].split('.jpg', 1)[0] + '.txt'
+print(file)
+with open(file, "w+") as f:
+    i = 0
+    for item in padded_field:
+        if i == 9:
+            f.write("\n")
+            i = 0
+        for j in range(item[0]):
+            f.write(item[1] + " ")
+            i = i + 1
 
 # solve sudoku
 A = read_problem(sys.argv[1] + '.txt')
