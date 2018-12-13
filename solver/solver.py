@@ -44,19 +44,9 @@ def solve(A):
         print("no solution found")
 
 
-def read_problem(file_name):
-    A = []
-    with open(file_name, encoding="utf8", errors='ignore') as f:
-        for l in f.readlines():
-            row = [int(c) for c in l.strip().split(' ') if c]
-            assert (len(row) == 9)
-            A.append(row)
-    assert (len(A) == 9)
-    return A
-
+# main
 
 # training part
-
 
 samples = np.loadtxt('trainsamples.data', np.float32)
 responses = np.loadtxt('trainresponses.data', np.float32)
@@ -74,6 +64,9 @@ if len(sys.argv) < 2:
 # TODO size to 430x430
 im = cv2.imread(sys.argv[1])
 out = np.zeros(im.shape, np.uint8)
+
+raster_size = math.ceil((len(out) // 9)) + 2
+field_size = len(out)
 
 gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 blur = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -114,34 +107,29 @@ row.sort(key=lambda x: int(x[1]))
 field.append(row)
 field = field[::-1]
 
-padded_field = []
-
 # compute number of zeros
+padded_field = []
 for row in field:
-    ext_row = [['0', 0, 0]] + row + [['0', 430, 0]]
+    ext_row = [['0', 0, 0]] + row + [['0', field_size, 0]]
     for i in range(0, len(ext_row) - 1):
         distance = ext_row[i + 1][1] - ext_row[i][1]
-        if distance > 60:
-            padded_field.append([distance // 49, '0'])
+        if distance > 1.25 * raster_size:
+            padded_field.append([distance // raster_size, '0'])
         if i != len(ext_row) - 2:
             padded_field.append([1, ext_row[i + 1][0]])
 
-
-# write to file
-file = sys.argv[1].split('.jpg', 1)[0] + '.txt'
-print(file)
-with open(file, "w+") as f:
-    i = 0
-    for item in padded_field:
-        if i == 9:
-            f.write("\n")
-            i = 0
-        for j in range(item[0]):
-            f.write(item[1] + " ")
-            i = i + 1
+# create game board
+A = [[] for i in range(0, 9)]
+i = k = 0
+for item in padded_field:
+    if i == 9:
+        k = k + 1
+        i = 0
+    for j in range(int(item[0])):
+        A[k].append(int(item[1]))
+        i = i + 1
 
 # solve sudoku
-A = read_problem(sys.argv[1] + '.txt')
 solve(A)
 
 # cv2.imshow('out', out)
