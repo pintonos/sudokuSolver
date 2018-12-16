@@ -63,13 +63,14 @@ def train(samples, responses):
 
 
 def get_solution(image):
-    im = cv2.imread(image)
-    out = np.zeros(im.shape, np.uint8)
+    image = cv2.imread(image)
+    image = cv2.resize(image, (431, 431))
+    out = np.zeros(image.shape, np.uint8)
 
     raster_size = math.ceil((len(out) // 9)) + 2
     field_size = len(out)
 
-    gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)
 
@@ -100,10 +101,6 @@ def get_solution(image):
                 row = [[string, x, y]]
                 y_old = y
 
-            # write to output image
-            cv2.rectangle(im, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            cv2.putText(out, string, (x, y + h), 0, 1, (0, 255, 0))
-
     row.sort(key=lambda x: int(x[1]))
     field.append(row)
     field = field[::-1]
@@ -123,12 +120,15 @@ def get_solution(image):
     A = [[] for i in range(0, 9)]
     i = k = 0
     for item in padded_field:
-        if i == 9:
-            k = k + 1
-            i = 0
         for j in range(int(item[0])):
+            if i == 9:
+                k = k + 1
+                i = 0
             A[k].append(int(item[1]))
             i = i + 1
+
+    for row in A:
+        print(row)
 
     # solve sudoku
     return solve(A)
