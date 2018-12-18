@@ -127,16 +127,13 @@ def get_solution(image):
             A[k].append(int(item[1]))
             i = i + 1
 
-    for row in A:
-        print(row)
-
     # solve sudoku
     return solve(A)
 
 
 # main
 
-model = train('trainsamples.data', 'trainresponses.data')
+model = train('numbers_samples.data', 'numbers_responses.data')
 solution = get_solution(sys.argv[1])
 for row in solution:
     print(row)
