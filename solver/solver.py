@@ -55,7 +55,7 @@ def solve(A):
     return A
 
 
-def generate_image(A):
+def generate_image(A, filename):
     image = np.full((IMAGE_SIZE + RASTER_SIZE, IMAGE_SIZE), 255, np.uint8)
     for i, row in enumerate(A, 1):
         cv2.putText(image, row, (RASTER_SIZE, RASTER_SIZE * i), cv2.FONT_HERSHEY_PLAIN, 2, BLACK)
@@ -66,8 +66,8 @@ def generate_image(A):
     cv2.line(image, (3 * RASTER_SIZE, 0), (3 * RASTER_SIZE, IMAGE_SIZE + RASTER_SIZE), BLACK, 2)
     cv2.line(image, (5 * RASTER_SIZE + RASTER_SIZE // 3, 0),
              (5 * RASTER_SIZE + RASTER_SIZE // 3, IMAGE_SIZE + RASTER_SIZE), BLACK, 2)
-    cv2.imshow("Result", image)
-    cv2.waitKey(0)
+
+    cv2.imwrite("./out" + filename[10:], image)
 
 
 def train(samples, responses):
@@ -153,4 +153,4 @@ def get_solution(image):
 
 model = train('numbers_samples.data', 'numbers_responses.data')
 solution = get_solution(sys.argv[1])
-generate_image(solution)
+generate_image(solution, sys.argv[1])
