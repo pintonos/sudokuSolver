@@ -8,6 +8,8 @@ BLOCK_SIZE = 3
 IMAGE_SIZE = 431
 RASTER_SIZE = math.ceil(IMAGE_SIZE // SUDOKU_SIZE) + 2
 
+BLACK = (0, 0, 0, 0)
+
 
 def all9(vs):
     assert (len(vs) == SUDOKU_SIZE)
@@ -54,9 +56,16 @@ def solve(A):
 
 
 def generate_image(A):
-    image = np.zeros((IMAGE_SIZE, IMAGE_SIZE, 4), np.uint8)
+    image = np.full((IMAGE_SIZE + RASTER_SIZE, IMAGE_SIZE), 255, np.uint8)
     for i, row in enumerate(A, 1):
-        cv2.putText(image, row, (RASTER_SIZE, RASTER_SIZE * i), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255, 255))
+        cv2.putText(image, row, (RASTER_SIZE, RASTER_SIZE * i), cv2.FONT_HERSHEY_PLAIN, 2, BLACK)
+        if i % BLOCK_SIZE == 0 and i != SUDOKU_SIZE:
+            cv2.line(image, (0, RASTER_SIZE * i + RASTER_SIZE // 3), (IMAGE_SIZE, RASTER_SIZE * i + RASTER_SIZE // 3),
+                     BLACK, 2)
+
+    cv2.line(image, (3 * RASTER_SIZE, 0), (3 * RASTER_SIZE, IMAGE_SIZE + RASTER_SIZE), BLACK, 2)
+    cv2.line(image, (5 * RASTER_SIZE + RASTER_SIZE // 3, 0),
+             (5 * RASTER_SIZE + RASTER_SIZE // 3, IMAGE_SIZE + RASTER_SIZE), BLACK, 2)
     cv2.imshow("Result", image)
     cv2.waitKey(0)
 
@@ -86,7 +95,6 @@ def create_board(padded_field):
 def get_solution(image):
     image = cv2.imread(image)
     image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
-    out = np.zeros(image.shape, np.uint8)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
