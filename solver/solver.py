@@ -3,20 +3,25 @@ import cv2
 import numpy as np
 from z3 import *
 
+SUDOKU_SIZE = 9
+BLOCK_SIZE = 3
+IMAGE_SIZE = 431
+RASTER_SIZE = math.ceil(IMAGE_SIZE // SUDOKU_SIZE) + 2
+
 
 def all9(vs):
-    assert (len(vs) == 9)
+    assert (len(vs) == SUDOKU_SIZE)
     return Distinct(vs)
 
 
 def solve(A):
-    vars = [[Int(str(i) + str(j)) for j in range(9)] for i in range(9)]
+    vars = [[Int(str(i) + str(j)) for j in range(SUDOKU_SIZE)] for i in range(SUDOKU_SIZE)]
 
     solver = Solver()
 
     for r in vars:
         for v in r:
-            solver.add(1 <= v, v <= 9)
+            solver.add(1 <= v, v <= SUDOKU_SIZE)
 
     # predefined values
     for i, row in enumerate(A):
@@ -25,14 +30,17 @@ def solve(A):
                 solver.add(vars[i][j] == val)
 
     # condition elements 1 .. 9 in rows and columns
-    for j in range(9):
+    for j in range(SUDOKU_SIZE):
         solver.add(all9(vars[j]))
         solver.add(all9([vars[i][j] for i in range(9)]))
 
         # determine block
-        br = j % 3
-        bc = j // 3
-        bs = [vars[3 * br + k][3 * bc + l] for k in range(3) for l in range(3)]
+        br = j % (SUDOKU_SIZE // BLOCK_SIZE)
+        bc = j // (SUDOKU_SIZE // BLOCK_SIZE)
+        bs = []
+        for k in range((SUDOKU_SIZE // BLOCK_SIZE)):
+            for l in range((SUDOKU_SIZE // BLOCK_SIZE)):
+                bs.append(vars[(SUDOKU_SIZE // BLOCK_SIZE) * br + k][(SUDOKU_SIZE // BLOCK_SIZE) * bc + l])
         solver.add(all9(bs))
 
     A = []
@@ -46,9 +54,9 @@ def solve(A):
 
 
 def generate_image(A):
-    image = np.zeros((210, 210, 4), np.uint8)
+    image = np.zeros((IMAGE_SIZE, IMAGE_SIZE, 4), np.uint8)
     for i, row in enumerate(A, 1):
-        cv2.putText(image, row, (25, 22 * i), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255, 255))
+        cv2.putText(image, row, (RASTER_SIZE, RASTER_SIZE * i), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255, 255))
     cv2.imshow("Result", image)
     cv2.waitKey(0)
 
@@ -62,13 +70,23 @@ def train(samples, responses):
     return model
 
 
+def create_board(padded_field):
+    A = [[] for i in range(0, SUDOKU_SIZE)]
+    i = k = 0
+    for item in padded_field:
+        for j in range(int(item[0])):
+            if i == SUDOKU_SIZE:
+                k = k + 1
+                i = 0
+            A[k].append(int(item[1]))
+            i = i + 1
+    return A
+
+
 def get_solution(image):
     image = cv2.imread(image)
-    image = cv2.resize(image, (431, 431))
+    image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
     out = np.zeros(image.shape, np.uint8)
-
-    raster_size = math.ceil((len(out) // 9)) + 2
-    field_size = len(out)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -108,24 +126,16 @@ def get_solution(image):
     # compute number of zeros
     padded_field = []
     for row in field:
-        ext_row = [['0', 0, 0]] + row + [['0', field_size, 0]]
+        ext_row = [['0', 0, 0]] + row + [['0', IMAGE_SIZE, 0]]
         for i in range(0, len(ext_row) - 1):
             distance = ext_row[i + 1][1] - ext_row[i][1]
-            if distance > 1.25 * raster_size:
-                padded_field.append([distance // raster_size, '0'])
+            if distance > 1.25 * RASTER_SIZE:
+                padded_field.append([distance // RASTER_SIZE, '0'])
             if i != len(ext_row) - 2:
                 padded_field.append([1, ext_row[i + 1][0]])
 
     # create game board
-    A = [[] for i in range(0, 9)]
-    i = k = 0
-    for item in padded_field:
-        for j in range(int(item[0])):
-            if i == 9:
-                k = k + 1
-                i = 0
-            A[k].append(int(item[1]))
-            i = i + 1
+    A = create_board(padded_field)
 
     # solve sudoku
     return solve(A)
@@ -135,6 +145,4 @@ def get_solution(image):
 
 model = train('numbers_samples.data', 'numbers_responses.data')
 solution = get_solution(sys.argv[1])
-for row in solution:
-    print(row)
 generate_image(solution)

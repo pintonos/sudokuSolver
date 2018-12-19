@@ -9,7 +9,7 @@ import cv2
 # images should be sized roughly to 400x400
 
 if len(sys.argv) < 2:
-    print "usage: python generateTrainData.py {trainImage1, trainImage2, ...}"
+    print("usage: python train_sudoku.py {trainImage1, trainImage2, ...}")
     exit(-1)
 
 responses = []
@@ -51,8 +51,7 @@ for i in range(1, len(sys.argv)):
 responses = np.array(responses, np.float32)
 responses = responses.reshape((responses.size, 1))
 
-
-print "training complete"
+print("training complete")
 
 np.savetxt('trainsamples.data', samples)
 np.savetxt('trainresponses.data', responses)
