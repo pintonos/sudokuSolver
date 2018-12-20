@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
 
-from solverREST.Solver import processRequest
+from solverREST.solverSRC.Processor import processRequest
 
 from rest_framework import viewsets, filters
 

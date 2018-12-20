@@ -9,6 +9,10 @@ verify_ssl = true
 django = "*"
 djangorestframework = "*"
 pillow = "*"
+opencv-python = "*"
+numpy = "*"
+z3 = "*"
+z3-solver = "*"
 
 [requires]
 python_version = "3.6"
