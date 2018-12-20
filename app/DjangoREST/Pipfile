@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django = "*"
+djangorestframework = "*"
+pillow = "*"
+opencv-python = "*"
+numpy = "*"
+z3 = "*"
+z3-solver = "*"
+
+[requires]
+python_version = "3.6"
