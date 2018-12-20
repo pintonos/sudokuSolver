@@ -52,6 +52,8 @@ def solve(A):
         for row in vars:
             s = reduce(lambda s, v: s + str(model[v]) + " ", row, "")
             A.append(s)
+    if len(A) == 0:
+        raise Exception("Sudoku not solvable")
     return A
 
 
@@ -89,6 +91,10 @@ def create_board(padded_field):
                 i = 0
             A[k].append(int(item[1]))
             i = i + 1
+    # assertions
+    assert len(A) == SUDOKU_SIZE
+    for row in A:
+        assert len(row) == SUDOKU_SIZE
     return A
 
 
@@ -152,5 +158,8 @@ def get_solution(image):
 # main
 
 model = train('numbers_samples.data', 'numbers_responses.data')
-solution = get_solution(sys.argv[1])
-generate_image(solution, sys.argv[1])
+try:
+    solution = get_solution(sys.argv[1])
+    generate_image(solution, sys.argv[1])
+except Exception:
+    raise
