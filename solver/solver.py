@@ -143,15 +143,23 @@ def get_solution(image):
     field = field[::-1]
 
     # compute number of zeros
+    y_old = 0
     padded_field = []
     for row in field:
         ext_row = [['0', 0, 0]] + row + [['0', IMAGE_SIZE, 0]]
+        y_new = row[0][2]
+        if y_new - y_old > RASTER_SIZE * 1.1:
+            padded_field.append([9, '0'])
+        y_old = y_new
         for i in range(0, len(ext_row) - 1):
             distance = ext_row[i + 1][1] - ext_row[i][1]
-            if distance > 1.25 * RASTER_SIZE:
+            if distance > 1.10 * RASTER_SIZE:
                 padded_field.append([distance // (RASTER_SIZE + 1), '0'])
             if i != len(ext_row) - 2:
                 padded_field.append([1, ext_row[i + 1][0]])
+
+    if IMAGE_SIZE - y_old > RASTER_SIZE * 1.1:
+        padded_field.append([9, '0'])
 
     # create game board
     A = create_board(padded_field)
