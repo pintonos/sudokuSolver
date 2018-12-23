@@ -1,13 +1,14 @@
 from os import walk
-import numpy as np
+
 import cv2
+import numpy as np
 
 BASE_DIR = './traindata/numbers/'
 
 
 def train(target, image_file, responses, samples):
     im = cv2.imread(BASE_DIR + target + image_file)
-    im = cv2.resize(im, (49, 49))
+    im = cv2.resize(im, (40, 40))
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)

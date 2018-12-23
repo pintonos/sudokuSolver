@@ -1,4 +1,5 @@
 from functools import reduce
+
 import cv2
 import numpy as np
 from z3 import *
@@ -52,9 +53,12 @@ def solve(A):
         for row in vars:
             s = reduce(lambda s, v: s + str(model[v]) + " ", row, "")
             A.append(s)
+    if len(A) == 0:
+        raise Exception("Sudoku not solvable")
     return A
 
 
+# deprecated
 def generate_image(A, filename):
     image = np.full((IMAGE_SIZE + RASTER_SIZE, IMAGE_SIZE), 255, np.uint8)
     for i, row in enumerate(A, 1):
@@ -89,6 +93,13 @@ def create_board(padded_field):
                 i = 0
             A[k].append(int(item[1]))
             i = i + 1
+    # assertions
+    try:
+        assert len(A) == SUDOKU_SIZE
+        for row in A:
+            assert len(row) == SUDOKU_SIZE
+    except AssertionError:
+        raise Exception("Not able to recognize all digits in image.")
     return A
 
 
@@ -111,7 +122,7 @@ def get_solution(image):
 
         area = w * h
         # contour is number of empty field
-        if 680 > area > 325 and w > 10 and h > 25:
+        if 1500 > area > 320 and w > 10 and h > 25:
             roi = thresh[y:y + h, x:x + w]
             roismall = cv2.resize(roi, (10, 10))
             roismall = roismall.reshape((1, 100))
@@ -132,15 +143,23 @@ def get_solution(image):
     field = field[::-1]
 
     # compute number of zeros
+    y_old = 0
     padded_field = []
     for row in field:
         ext_row = [['0', 0, 0]] + row + [['0', IMAGE_SIZE, 0]]
+        y_new = row[0][2]
+        if y_new - y_old > RASTER_SIZE * 1.1:
+            padded_field.append([9, '0'])
+        y_old = y_new
         for i in range(0, len(ext_row) - 1):
             distance = ext_row[i + 1][1] - ext_row[i][1]
-            if distance > 1.25 * RASTER_SIZE:
-                padded_field.append([distance // RASTER_SIZE, '0'])
+            if distance > 1.10 * RASTER_SIZE:
+                padded_field.append([distance // (RASTER_SIZE + 1), '0'])
             if i != len(ext_row) - 2:
                 padded_field.append([1, ext_row[i + 1][0]])
+
+    if IMAGE_SIZE - y_old > RASTER_SIZE * 1.1:
+        padded_field.append([9, '0'])
 
     # create game board
     A = create_board(padded_field)
@@ -149,8 +168,9 @@ def get_solution(image):
     return solve(A)
 
 
-# main
+# usage
 
 model = train('numbers_samples.data', 'numbers_responses.data')
 solution = get_solution(sys.argv[1])
-generate_image(solution, sys.argv[1])
+for row in solution:
+    print(row)
