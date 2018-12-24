@@ -5,3 +5,12 @@ user name: <input type="text" [(ngModel)]="userName">
     <p>Login name: {{response.login}}</p>
     <p>Number of repos: {{response.public_repos}}</p>
 </div>
+
+<h1>File Upload</h1>
+<input 
+    style="display: none"
+    type="file" 
+    (change)="onFileSelected($event)"
+    #fileInput>
+<button type="button" (click)="fileInput.click()">Choose File</button>
+<button type="button" (click)="onUpload()">Upload</button>

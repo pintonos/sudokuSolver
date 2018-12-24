@@ -13,6 +13,7 @@ opencv-python = "*"
 numpy = "*"
 z3 = "*"
 z3-solver = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.6"

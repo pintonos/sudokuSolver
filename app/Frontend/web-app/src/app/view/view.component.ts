@@ -11,6 +11,9 @@ export class ViewComponent implements OnInit {
   userName: string = "";
   response: any;
 
+  url: string = "http://127.0.0.1:8000/api/sudokuSolver/";
+  selectedFile: File = null;
+
   constructor(private http: HttpClient) {
 
    }
@@ -25,6 +28,24 @@ export class ViewComponent implements OnInit {
       this.response = response;
       console.log(response);
     })
+  }
+
+  onFileSelected(event){
+    this.selectedFile = <File> event.target.files[0];
+    console.log(event);
+  }
+
+  onUpload(){
+    /*const fd = new FormData();
+    fd.append('image', this.selectedFile, this.selectedFile.name);
+    this.http.post(this.url, fd)
+      .subscribe(res => {
+        console.log(res);
+      });*/
+      this.http.get('http://127.0.0.1:8000/api/sudokuSolver/')
+      .subscribe(res => {
+        console.log(res);
+      });
   }
 
 }
