@@ -1,16 +1,159 @@
-user name: <input type="text" [(ngModel)]="userName">
-<button (click)="search()">Search</button>
-
-<div *ngIf="response">
-    <p>Login name: {{response.login}}</p>
-    <p>Number of repos: {{response.public_repos}}</p>
+<div class="jumbotron">
+    <h1>
+      Sudoku Solver
+    </h1>
 </div>
 
-<h1>File Upload</h1>
-<input 
-    style="display: none"
-    type="file" 
-    (change)="onFileSelected($event)"
-    #fileInput>
-<button type="button" (click)="fileInput.click()">Choose File</button>
-<button type="button" (click)="onUpload()">Upload</button>
+<div class="container">
+  <div class="centered text-center">
+      <h1>File Upload</h1>
+
+      <br>
+
+      <input 
+          style="display: none"
+          type="file" 
+          (change)="onFileSelected($event)"
+          #fileInput>
+      <button type="button" class="btn btn-primary btn-lg" (click)="fileInput.click()">
+          <i class="fa fa-file"></i>
+          Choose File
+      </button>
+      <br>
+      <br>
+      <div class="alert alert-success" role="alert" *ngIf="selectedFile">
+          <strong>Info!</strong> Your selected file: {{ selectedFile.name }}
+      </div>
+      <br>
+      <button type="button" class="btn btn-success btn-lg" (click)="onUpload()">
+        <i class="fa fa-upload"></i>
+        Upload
+      </button>
+
+      <br>
+
+      
+  </div>
+</div>
+
+<br>
+
+<div class="container">
+  <div class="alert alert-danger" *ngIf="errorRequest">
+    <strong>Error! </strong>Sorry, our server is down...
+  </div>
+</div>
+
+<div class="container">
+    <div class="alert alert-warning" *ngIf="response">
+      <strong>Info! </strong>{{response.message}}...
+    </div>
+</div>
+
+<div class="container" *ngIf="response">
+    <table>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+        <tr>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+          <td> x </td>
+        </tr>
+      </table>
+  </div>
+
+
+
+

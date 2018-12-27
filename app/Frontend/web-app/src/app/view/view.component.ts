@@ -14,6 +14,9 @@ export class ViewComponent implements OnInit {
   url: string = "http://127.0.0.1:8000/api/sudokuSolver/";
   selectedFile: File = null;
 
+  errorRequest: any;
+  warningRequest: any;
+
   constructor(private http: HttpClient) {
 
    }
@@ -22,29 +25,22 @@ export class ViewComponent implements OnInit {
     console.log('init view component')
   }
 
-  search(){
-    let obs = this.http.get('https://api.github.com/users/' + this.userName);
-    obs.subscribe((response) => {
-      this.response = response;
-      console.log(response);
-    })
-  }
-
   onFileSelected(event){
     this.selectedFile = <File> event.target.files[0];
     console.log(event);
+    console.log(this.selectedFile);
   }
 
   onUpload(){
-    /*const fd = new FormData();
-    fd.append('image', this.selectedFile, this.selectedFile.name);
+    const fd = new FormData();
+    fd.append('image', this.selectedFile);
     this.http.post(this.url, fd)
-      .subscribe(res => {
-        console.log(res);
-      });*/
-      this.http.get('http://127.0.0.1:8000/api/sudokuSolver/')
-      .subscribe(res => {
-        console.log(res);
+      .subscribe(response => {
+        this.response = response;
+        console.log(response);
+      }, error => {
+        this.errorRequest = "error";
+        console.log("error");
       });
   }
 

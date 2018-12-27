@@ -174,3 +174,4 @@ model = train('numbers_samples.data', 'numbers_responses.data')
 solution = get_solution(sys.argv[1])
 for row in solution:
     print(row)
+
