@@ -1,5 +1,3 @@
-from functools import reduce
-
 import cv2
 import numpy as np
 from z3 import *
@@ -51,8 +49,10 @@ def solve(A):
     if result == z3.sat:
         model = solver.model()  # get valuation
         for row in vars:
-            s = reduce(lambda s, v: s + str(model[v]) + " ", row, "")
-            A.append(s)
+            result_row = []
+            for col in row:
+                result_row.append(model[col])
+            A.append(result_row)
     if len(A) == 0:
         raise Exception("Sudoku not solvable")
     return A
@@ -119,10 +119,10 @@ def get_solution(image):
     _, y_old, _, _ = cv2.boundingRect(contours[0])
     for cnt in contours:
         [x, y, w, h] = cv2.boundingRect(cnt)
-
         area = w * h
+
         # contour is number of empty field
-        if 1500 > area > 320 and w > 10 and h > 25:
+        if 1500 > area > 170 and w > 10 and h > 14:
             roi = thresh[y:y + h, x:x + w]
             roismall = cv2.resize(roi, (10, 10))
             roismall = roismall.reshape((1, 100))
@@ -137,6 +137,12 @@ def get_solution(image):
                     field.append(row)
                 row = [[string, x, y]]
                 y_old = y
+
+            # new = copy.deepcopy(image)
+            # cv2.rectangle(new, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # cv2.imshow("", new)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
 
     row.sort(key=lambda x: int(x[1]))
     field.append(row)
