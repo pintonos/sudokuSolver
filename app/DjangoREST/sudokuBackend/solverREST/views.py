@@ -31,6 +31,6 @@ def SudokuCreateResponse(request):
         if file_serializer.is_valid():
             file_serializer.save()
             a = processRequest(file_serializer.data)
-            return Response({"message": "Got some data!", "result" : a})
+            return Response({"message": "success", "result" : a})
 
-    return Response({"message": "Please use post-method"})
+    return Response({"message": "use post-method"})
