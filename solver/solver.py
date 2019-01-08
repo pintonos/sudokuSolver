@@ -103,14 +103,26 @@ def create_board(padded_field):
     return A
 
 
+def adjust_image(image, gray):
+    _, contours, _ = cv2.findContours(gray, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    sorted_contours = sorted(contours, key=lambda c: cv2.contourArea(c), reverse=True)
+
+    [x, y, w, h] = cv2.boundingRect(sorted_contours[0])
+    cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+    # cv2.imshow("", image[x+x:x+w, y-x:y+h])
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+    return gray[x + x:x + w, y - x:y + h]
+
+
 def get_solution(image):
     image = cv2.imread(image)
     image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
-
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)
-
+    thresh = adjust_image(image, thresh)
     # finding Contours
     _, contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -137,12 +149,6 @@ def get_solution(image):
                     field.append(row)
                 row = [[string, x, y]]
                 y_old = y
-
-            # new = copy.deepcopy(image)
-            # cv2.rectangle(new, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            # cv2.imshow("", new)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
 
     row.sort(key=lambda x: int(x[1]))
     field.append(row)
