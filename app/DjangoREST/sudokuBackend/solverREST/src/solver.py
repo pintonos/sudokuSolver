@@ -1,6 +1,8 @@
+import math
+import sys
+
 import cv2
 import numpy as np
-from z3 import *
 
 SUDOKU_SIZE = 9
 BLOCK_SIZE = 3
@@ -181,8 +183,7 @@ def get_solution(image):
 
 
 # usage
-
-model = train('numbers_samples.data', 'numbers_responses.data')
+model = train('../resources/data/numbers_samples.data', '../resources/data/numbers_responses.data')
 solution = get_solution(sys.argv[1])
 for row in solution:
     print(row)

@@ -1,14 +1,8 @@
 import logging
-from rest_framework.renderers import JSONRenderer
-from solverREST.solverSRC.Solver import get_solution
-import cv2
 import os
 
-import json
-
-from django.http import HttpResponse
-
-from sudokuBackend.settings import MEDIA_ROOT, BASE_DIR
+from solverREST.solverSRC.Solver import get_solution
+from sudokuBackend.settings import MEDIA_ROOT
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
