@@ -1,7 +1,9 @@
 ## Development
 
 * Install Python dependencies: `pipenv install`
-* Migrate: `pipenv run python ./sudokuBackend/manage.py migrate`
+* Migrate: 
+    `pipenv run python3 ./sudokuBackend/manage.py makemigrations`
+    `pipenv run python3 ./sudokuBackend/manage.py migrate --run-syncdb`
 * Run locally: `pipenv run python3 ./sudokuBackend/manage.py runserver`
 * Head over http://127.0.0.1:8000 or http://127.0.0.1:8000/api/sudokuSolver/
 
