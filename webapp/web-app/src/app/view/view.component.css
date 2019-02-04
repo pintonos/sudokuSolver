@@ -1,6 +1,13 @@
 .jumbotron {
-  background-color:#b366ff !important; 
+  /*background-color:#b366ff !important; */
+  background-image: url("../../assets/header.png");
+  background-size: cover;
 }
+
+.jumbotron h1{
+  color: white;
+}
+
 .centered{
   margin: 0 auto;
 }
