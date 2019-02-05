@@ -16,4 +16,4 @@ z3-solver = "*"
 django-cors-headers = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"

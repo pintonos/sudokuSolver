@@ -1,9 +1,11 @@
 import cv2
 import numpy as np
 import math
+from z3.z3 import *
 from z3 import *
 
 from backend.settings import BASE_DIR
+
 
 SUDOKU_SIZE = 9
 BLOCK_SIZE = 3
@@ -19,6 +21,8 @@ def all9(vs):
 
 
 def solve(matrix):
+    x = z3.Int('x')
+    y = Int('y')
     digits = [[Int(str(i) + str(j)) for j in range(SUDOKU_SIZE)] for i in range(SUDOKU_SIZE)]
 
     solver = Solver()
@@ -54,7 +58,7 @@ def solve(matrix):
         for row in digits:
             result_row = []
             for col in row:
-                result_row.append(model[col])
+                result_row.append(model[col].as_long())
             matrix.append(result_row)
     if len(matrix) == 0:
         raise Exception("Sudoku not solvable")
@@ -107,7 +111,7 @@ def create_board(padded_field):
 
 
 def adjust_image(image, gray):
-    _, contours, _ = cv2.findContours(gray, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(gray, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     sorted_contours = sorted(contours, key=lambda c: cv2.contourArea(c), reverse=True)
 
     [x, y, w, h] = cv2.boundingRect(sorted_contours[0])
@@ -127,7 +131,7 @@ def get_solution(image):
     thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)
     thresh = adjust_image(image, thresh)
     # finding Contours
-    _, contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     row = []
     field = []

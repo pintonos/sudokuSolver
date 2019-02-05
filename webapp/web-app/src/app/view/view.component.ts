@@ -34,16 +34,17 @@ export class ViewComponent implements OnInit {
   onUpload(){
     const fd = new FormData();
     fd.append('image', this.selectedFile);
-    /*this.http.post(this.url, fd)
+    this.http.post(this.url, fd)
       .subscribe(response => {
-        this.response = response;
-        console.log(response);
+        this.response = response
+        console.log(this.response);
+        this.response = this.response.result.rows
+        console.log(this.response);
+
       }, error => {
         this.errorRequest = "error";
         console.log("error");
-      });*/
-      this.response = [[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9],[1,2,3,4,5,6,7,8,9]];
-      console.log(this.response);
+      });   
   }
 
 }
