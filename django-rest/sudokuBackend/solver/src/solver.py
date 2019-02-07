@@ -1,11 +1,6 @@
 import cv2
 import numpy as np
-import math
-from z3.z3 import *
 from z3 import *
-
-from backend.settings import BASE_DIR
-
 
 SUDOKU_SIZE = 9
 BLOCK_SIZE = 3
@@ -21,14 +16,12 @@ def all9(vs):
 
 
 def solve(matrix):
-    x = z3.Int('x')
-    y = Int('y')
     digits = [[Int(str(i) + str(j)) for j in range(SUDOKU_SIZE)] for i in range(SUDOKU_SIZE)]
 
     solver = Solver()
 
-    for r in digits:
-        for dig in r:
+    for row in digits:
+        for dig in row:
             solver.add(1 <= dig, dig <= SUDOKU_SIZE)
 
     # predefined values
@@ -54,11 +47,11 @@ def solve(matrix):
     matrix = []
     result = solver.check()  # check for sat
     if result == z3.sat:
-        model = solver.model()  # get valuation
+        m = solver.model()  # get valuation
         for row in digits:
             result_row = []
             for col in row:
-                result_row.append(model[col].as_long())
+                result_row.append(m[col].as_long())
             matrix.append(result_row)
     if len(matrix) == 0:
         raise Exception("Sudoku not solvable")
@@ -85,13 +78,13 @@ def train(samples, responses):
     samples = np.loadtxt(samples, np.float32)
     responses = np.loadtxt(responses, np.float32)
     responses = responses.reshape((responses.size, 1))
-    model = cv2.ml.KNearest_create()
-    model.train(samples, cv2.ml.ROW_SAMPLE, responses)
-    return model
+    m = cv2.ml.KNearest_create()
+    m.train(samples, cv2.ml.ROW_SAMPLE, responses)
+    return m
 
 
 def create_board(padded_field):
-    matrix = [[] for i in range(0, SUDOKU_SIZE)]
+    matrix = [[] for _ in range(0, SUDOKU_SIZE)]
     i = k = 0
     for item in padded_field:
         for j in range(int(item[0])):
@@ -110,28 +103,54 @@ def create_board(padded_field):
     return matrix
 
 
-def adjust_image(image, gray):
+def align_image(gray):
     contours, _ = cv2.findContours(gray, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+    # get biggest contour, which should be sudoku square
     sorted_contours = sorted(contours, key=lambda c: cv2.contourArea(c), reverse=True)
+    biggest = sorted_contours[0]
 
-    [x, y, w, h] = cv2.boundingRect(sorted_contours[0])
-    cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-    # cv2.imshow("", image[x+x:x+w, y-x:y+h])
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    # get 4 vertices of sudoku square
+    peri = cv2.arcLength(biggest, True)
+    src = cv2.approxPolyDP(biggest, 0.02 * peri, True)
 
-    return gray[x + x:x + w, y - x:y + h]
+    # sort source points according to destination points
+    src = sorted(src, key=lambda elem: [elem[0][0] + elem[0][1]])
+    src = np.array([elem.tolist() for elem in src])
+    if src[1][0][1] < src[2][0][1]:
+        src[2][0][0], src[1][0][0] = src[1][0][0], src[2][0][0]
+        src[2][0][1], src[1][0][1] = src[1][0][1], src[2][0][1]
+
+    # 4 fixed points in destination image
+    destination = np.array([[0, 0], [0, IMAGE_SIZE], [IMAGE_SIZE, 0], [IMAGE_SIZE, IMAGE_SIZE]])
+
+    # calculate homography matrix
+    h, status = cv2.findHomography(src, destination)
+    im_out = cv2.warpPerspective(gray, h, (gray.shape[1], gray.shape[0]))
+
+    cv2.imshow("", im_out)
+    cv2.waitKey(0)
+
+    return im_out
 
 
-def get_solution(image):
-    image = cv2.imread(image)
+def prepare_image(image):
     image = cv2.resize(image, (IMAGE_SIZE, IMAGE_SIZE))
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 5, 2)
-    thresh = adjust_image(image, thresh)
+    aligned = align_image(thresh)
+    return aligned
+
+
+def get_solution(image):
+    image = cv2.imread(image)
+
+    # prepare image
+    image = prepare_image(image)
+
     # finding Contours
-    contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     row = []
     field = []
@@ -142,22 +161,22 @@ def get_solution(image):
 
         # contour is number of empty field
         if 1500 > area > 170 and w > 10 and h > 14:
-            roi = thresh[y:y + h, x:x + w]
-            roismall = cv2.resize(roi, (10, 10))
-            roismall = roismall.reshape((1, 100))
-            roismall = np.float32(roismall)
-            _, results, _, _ = model.findNearest(roismall, k=1)
+            roi = image[y:y + h, x:x + w]
+            roi_small = cv2.resize(roi, (10, 10))
+            roi_small = roi_small.reshape((1, 100))
+            roi_small = np.float32(roi_small)
+            _, results, _, _ = model.findNearest(roi_small, k=1)
             string = str(int((results[0][0])))
             if y + 10 > y_old > y - 10:
                 row.append([string, x, y])
             else:
-                row.sort(key=lambda x: int(x[1]))
+                row.sort(key=lambda z: int(z[1]))
                 if len(row) != 0:
                     field.append(row)
                 row = [[string, x, y]]
                 y_old = y
 
-    row.sort(key=lambda x: int(x[1]))
+    row.sort(key=lambda z: int(z[1]))
     field.append(row)
     field = field[::-1]
 
@@ -181,13 +200,18 @@ def get_solution(image):
         padded_field.append([9, '0'])
 
     # create game board
-    A = create_board(padded_field)
+    mat = create_board(padded_field)
 
     # solve sudoku
-    return solve(A)
+    return solve(mat)
 
 
 # usage
-print(BASE_DIR)
+'''
 model = train(BASE_DIR + '/solver/resources/data/numbers_samples.data',
               BASE_DIR + '/solver/resources/data/numbers_responses.data')
+
+solution = get_solution("/home/josef/projects/sudokuSolver/django-rest/sudokuBackend/solver/resources/testdata/1.jpg")
+for r in solution:
+    print(r)
+'''
