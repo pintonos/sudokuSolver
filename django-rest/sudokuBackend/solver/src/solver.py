@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 from z3 import *
 
+from backend.settings import BASE_DIR
+
 SUDOKU_SIZE = 9
 BLOCK_SIZE = 3
 IMAGE_SIZE = 431
@@ -207,10 +209,11 @@ def get_solution(image):
 
 
 # usage
-'''
+
 model = train(BASE_DIR + '/solver/resources/data/numbers_samples.data',
               BASE_DIR + '/solver/resources/data/numbers_responses.data')
 
+'''
 solution = get_solution("/home/josef/projects/sudokuSolver/django-rest/sudokuBackend/solver/resources/testdata/1.jpg")
 for r in solution:
     print(r)
