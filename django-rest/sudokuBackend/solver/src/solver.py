@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from z3 import *
 import math
+import os
 
 from backend.settings import BASE_DIR
 
@@ -88,7 +89,7 @@ class Solver:
 
     @staticmethod
     def solve(matrix):
-        digits = [[Int(str(i) + str(j)) for j in range(Solver.SUDOKU_SIZE)] for i in range(Solver.SUDOKU_SIZE)]
+        digits = [[z3.Int(str(i) + str(j)) for j in range(Solver.SUDOKU_SIZE)] for i in range(Solver.SUDOKU_SIZE)]
 
         z3_solver = z3.Solver()
 
@@ -201,7 +202,7 @@ class Solver:
         return matrix
 
 
-solver = Solver("/home/josef/projects/sudokuSolver/django-rest/sudokuBackend/solver/resources/testdata/23.jpg")
+'''solver = Solver("/home/josef/projects/sudokuSolver/django-rest/sudokuBackend/solver/resources/testdata/23.jpg")
 solution = solver.get_solution()
 for r in solution:
-    print(r)
+    print(r)'''
