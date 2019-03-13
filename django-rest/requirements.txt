@@ -1,0 +1,8 @@
+django
+djangorestframework
+pillow
+opencv-python
+numpy
+z3
+z3-solver
+django-cors-headers
